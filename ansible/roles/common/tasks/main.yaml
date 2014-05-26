@@ -1,0 +1,19 @@
+---
+# - name: pacman update cache
+#   pacman: update_cache=yes
+#   sudo: yes
+#
+- name: ntp install
+  sudo: yes
+  pacman: name=ntp state=present
+
+- name: ntp startup
+  sudo: yes
+  service: name=ntpd.service state=started enabled=yes
+
+- name: local time zone
+  sudo: yes
+  file: src=/usr/share/zoneinfo/America/Sao_Paulo dest=/etc/localtime state=link
+  notify:
+    - restart ntpd
+

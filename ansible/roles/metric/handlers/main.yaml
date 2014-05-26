@@ -1,0 +1,3 @@
+---
+- name: generate graphite index
+  command: /usr/bin/build-index

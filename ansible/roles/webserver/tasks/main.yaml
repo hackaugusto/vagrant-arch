@@ -1,0 +1,5 @@
+---
+- include: nginx.yaml
+- include: uwsgi.yaml
+- include: statsite.yaml
+- include: diamond.yaml

@@ -1,0 +1,86 @@
+[server]
+user = {{ user }}
+group =
+pid_file = /run/diamond.pid
+
+collectors_reload_interval = 3600
+collectors_path = /usr/share/diamond/collectors/
+collectors_config_path = /etc/diamond/collectors/
+
+handlers = diamond.handler.statsite.StatsiteHandler, diamond.handler.archive.ArchiveHandler
+handlers_config_path = /etc/diamond/handlers/
+handlers_path = /usr/share/diamond/handlers/
+
+[handlers]
+keys = syslog
+
+    [[default]]
+
+    [[ArchiveHandler]]
+    log_file = /var/log/diamond/archive.log
+    days = 7
+
+    [[GraphiteHandler]]
+    host = graphite
+    port = 2003
+    timeout = 15
+    batch = 1
+
+    [[StatsdHandler]]
+    host = 127.0.0.1
+    port = 8125
+
+    [[StatsiteHandler]]
+    host = 127.0.0.1
+    tcpport = 8125
+    udpport = 8125
+    timeout = 10
+
+
+[collectors]
+    [[default]]
+    hostname_method = smart
+
+    # Path Prefix and Suffix
+    # you can use one or both to craft the path where you want to put metrics
+    # such as: %(path_prefix)s.$(hostname)s.$(path_suffix)s.$(metric)s
+    # path_prefix = servers
+    # path_suffix =
+
+    # Path Prefix for Virtual Machines
+    # If the host supports virtual machines, collectors may report per
+    # VM metrics. Following OpenStack nomenclature, the prefix for
+    # reporting per VM metrics is "instances", and metric foo for VM
+    # bar will be reported as: instances.bar.foo...
+    # instance_prefix = instances
+
+[loggers]
+keys = root
+
+[formatters]
+keys = syslog,default
+
+[logger_root]
+level = INFO
+handlers = syslog
+propagate = 1
+
+[handler_syslog]
+class = handlers.SysLogHandler
+level = DEBUG
+formatter = syslog
+args = ('/dev/log',)
+
+[handler_rotated_file]
+class = handlers.TimedRotatingFileHandler
+level = DEBUG
+formatter = default
+args = ('/var/log/diamond/diamond.log', 'midnight', 1, 7)
+
+[formatter_default]
+format = [%(asctime)s] [%(threadName)s] %(message)s
+datefmt =
+
+[formatter_syslog]
+format = %(asctime)-15s diamond[%(process)d] %(message)s
+datefmt = %b %d %H:%M:%S

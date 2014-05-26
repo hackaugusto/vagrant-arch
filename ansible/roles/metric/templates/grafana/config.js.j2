@@ -1,0 +1,20 @@
+define(['settings'], function (Settings) {
+  return new Settings({
+
+    // http://username:password@domain.com:9200
+    elasticsearch: "http://" + window.location.hostname + ":9200",
+    grafana_index: "grafana-dash",
+
+    // remember to check CORS
+    graphiteUrl: "http://"+window.location.hostname+":8888",
+
+    default_route: '/dashboard/file/default.json',
+    timezoneOffset: null,
+    unsaved_changes_warning: true,
+
+    panel_names: [
+      'text',
+      'graphite'
+    ]
+  });
+});

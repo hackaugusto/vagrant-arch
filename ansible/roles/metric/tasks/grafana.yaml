@@ -1,0 +1,17 @@
+---
+- name: grafana install 
+  geturl: url=http://grafanarel.s3.amazonaws.com/grafana-1.5.4.tar.gz sha256sum=4cff1d76f03f0918dca78559c9144d85ac405442d81f1ed1bd358c1e5682edaf dest=/srv/
+
+- name: grafana decompress
+  unarchive: src=/srv/grafana-1.5.4.tar.gz dest=/srv
+
+- name: grafana config
+  template: src=grafana/conf.js.j2 dest=/srv/grafana owner={{ user }} group=http
+
+- name: grafana nginx config
+  template: src=grafana/grafana_nginx.conf.j2 dest=/etc/nginx/sites-available/grafana.conf owner={{ user }} group=http
+
+- name: grafana nginx enable
+  file: src=/etc/nginx/sites-available/grafana.conf dest=/etc/nginx/sites-enabled/grafana.conf state=link
+  notify:
+    - restart nginx

@@ -1,0 +1,23 @@
+---
+- name: diamond install
+  command: /usr/bin/yaourt -S --noconfirm diamond-git creates=/usr/bin/diamond
+
+- name: diamond directories
+  file: path={{ item }} state=directory owner={{ user }}
+  sudo: yes
+  with_items:
+    - /var/log/diamond/
+    - /etc/diamond/collectors
+    - /etc/diamond/handlers
+
+- name: diamond configuration
+  template: src=diamond/{{ item }}.j2 dest=/etc/diamond/{{ item }} owner={{ user }}
+  sudo: yes
+  with_items:
+    - diamond.conf
+    - collectors/CPUCollector.conf
+    - collectors/LoadAverageCollector.conf
+
+- name: diamond startup
+  sudo: yes
+  service: name=diamond.service state=started enabled=yes

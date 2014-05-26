@@ -1,0 +1,11 @@
+---
+- name: postgresql install
+  pacman: name=postgresql state=present
+  sudo: yes
+
+- name: postgresql database
+  postgresql_db: name={{ app_name }}
+
+- name: postgresql startup
+  sudo: yes
+  service: name=postgresql.service state=started enabled=yes

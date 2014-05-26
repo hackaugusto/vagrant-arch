@@ -1,0 +1,49 @@
+---
+- name: graphite install
+  command: /usr/bin/yaourt -S --noconfirm python2-graphite-web-git creates=/etc/nginx/sites-available/graphite.conf
+  notify:
+    - generate graphite index
+
+- name: graphite directories
+  file: path={{ item }} state=directory owner={{ user }} group=http
+  sudo: yes
+  with_items:
+    - /var/lib/graphite
+    - /var/log/graphite
+  notify:
+    - generate graphite index
+
+- name: graphite files permission
+  file: path={{ item }} state=directory owner={{ user }} group=http
+  sudo: yes
+  with_items:
+    - /var/log/graphite/cache.log
+    - /var/log/graphite/exception.log
+    - /var/log/graphite/info.log
+    - /var/log/graphite/metricaccess.log
+    - /var/log/graphite/rendering.log
+    - /etc/uwsgi/sites-available/graphite.ini
+    - /var/lib/graphite/graphite.db
+    - /var/lib/graphite/index
+
+- name: graphite configuration
+  template: src=graphite/graphite_nginx.conf.j2 dest=/etc/nginx/sites-available/graphite.conf owner={{ user }} group=http
+  sudo: yes
+
+- name: graphite enable uwsgi
+  file: src=/etc/uwsgi/sites-available/graphite.ini dest=/etc/uwsgi/sites-enabled/graphite.ini state=link
+  notify:
+    - restart nginx
+
+- name: graphite enable nginx
+  file: src=/etc/nginx/sites-available/graphite.conf dest=/etc/nginx/sites-enabled/graphite.conf state=link
+  notify:
+    - restart uwsgi
+
+# - name: graphite startup uwsgi
+#   sudo: yes
+#   service: name=emperor.uwsgi.service state=started enabled=yes
+
+# - name: graphite startup nginx
+#   sudo: yes
+#   service: name=nginx.service state=started enabled=yes

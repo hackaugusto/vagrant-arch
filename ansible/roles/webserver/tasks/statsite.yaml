@@ -1,0 +1,12 @@
+---
+- name: statsite install
+  command: /usr/bin/yaourt -S --noconfirm statsite-git creates=/usr/bin/statsite
+  # ignore_errors: True
+
+- name: statsite configuration
+  template: src=statsite/statsite.conf.j2 dest=/etc/statsite.conf owner={{ user }}
+  sudo: yes
+
+- name: statsite startup
+  sudo: yes
+  service: name=statsite.service state=started enabled=yes

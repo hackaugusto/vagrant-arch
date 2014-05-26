@@ -1,0 +1,7 @@
+[uwsgi]
+plugins = python2
+chdir = {{ project_root }}
+module = {{ app_name }}.wsgi
+socket = /run/uwsgi/{{ app_name }}.sock
+enable-metrics = true
+stats-push = statsd:127.0.0.1:8125,uwsgi

@@ -1,0 +1,14 @@
+---
+- name: carbon install
+  command: /usr/bin/yaourt -S --noconfirm python2-carbon-git creates=/usr/bin/carbon-cache.py
+
+- name: carbon directories
+  file: path={{ item }} state=directory owner={{ user }}
+  sudo: yes
+  with_items:
+    - /var/lib/carbon/whisper
+    - /var/log/carbon
+
+- name: carbon startup
+  sudo: yes
+  service: name=carbon.service state=started enabled=yes

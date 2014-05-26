@@ -1,0 +1,33 @@
+---
+- name: nginx install 
+  pacman: name=nginx state=present
+  sudo: yes
+  notify:
+    - restart nginx
+ 
+- name: nginx directories
+  file: path={{ item }} state=directory owner={{ user }}
+  sudo: yes
+  with_items:
+    - /var/log/nginx
+    - /etc/nginx/sites-available 
+    - /etc/nginx/sites-enabled
+
+- name: nginx configuration
+  template: src=nginx/nginx.conf.j2 dest=/etc/nginx/nginx.conf owner={{ user }}
+  sudo: yes
+
+- name: nginx app configuration
+  template: src=nginx/{{ app_name }}.conf.j2 dest=/etc/nginx/sites-available/{{ app_name }}.conf owner={{ user }}
+
+- name: nginx enable app
+  file: src=/etc/nginx/sites-available/{{ app_name }}.conf dest=/etc/nginx/sites-enabled/{{ app_name }}.conf state=link
+  notify:
+    - restart nginx
+
+- name: remove default nginx site
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: nginx startup
+  sudo: yes
+  service: name=nginx.service state=started enabled=yes

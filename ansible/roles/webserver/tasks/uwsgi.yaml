@@ -1,0 +1,34 @@
+- name: uwsgi install
+  pacman: name={{ item }} state=present
+  sudo: yes
+  with_items:
+    - uwsgi
+    - uwsgi-plugin-python2
+    # - uwsgi-plugin-carbon
+  notify:
+    - restart uwsgi 
+
+- name: uwsgi directories
+  file: path={{ item }} state=directory owner={{ user }}
+  sudo: yes
+  with_items:
+    - /run/uwsgi
+    - /var/log/uwsgi
+    - /etc/uwsgi/sites-available 
+    - /etc/uwsgi/sites-enabled
+
+- name: uwsgi emperor configuration
+  template: src=uwsgi/emperor.ini.j2 dest=/etc/uwsgi/emperor.ini owner={{ user }}
+  sudo: yes
+
+- name: uwsgi app configuration
+  template: src=uwsgi/{{ app_name }}.ini.j2 dest=/etc/uwsgi/sites-available/{{ app_name}}.ini owner={{ user }}
+
+- name: uwsgi enable app
+  file: src=/etc/uwsgi/sites-available/{{ app_name }}.ini dest=/etc/uwsgi/sites-enabled/{{ app_name }}.ini state=link
+  notify:
+    - restart uwsgi 
+
+- name: uwsgi startup
+  sudo: yes
+  service: name=emperor.uwsgi.service state=started enabled=yes

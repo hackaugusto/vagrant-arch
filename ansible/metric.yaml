@@ -1,0 +1,6 @@
+---
+- hosts: metric
+  roles:
+    - common
+    - webserver
+    - metric

@@ -1,0 +1,15 @@
+server {
+    listen      8889;
+    server_name grafana;
+    
+    root        /srv/grafana/;
+    access_log  /var/log/grafana-access.log;
+    error_log   /var/log/grafana-error.log;
+    
+    location / {
+        index /index.html;
+        expires 1y;
+        add_header Cache-Control 'public';
+    }
+}
+
